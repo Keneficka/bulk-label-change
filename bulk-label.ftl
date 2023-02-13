@@ -35,6 +35,8 @@
 	var encodedOldLabel;
 	var newLabel;
 	var keyword;
+    var cursor;
+    var isMore;
 
 	document.getElementById("AKchangeLabelButton").onclick = function() {replace()};
 
@@ -49,69 +51,87 @@
 		oldLabel = document.getElementById("oldLabelTextBox").value;
 		encodedOldLabel = encodeURIComponent(oldLabel);
 		newLabel = document.getElementById("newLabelTextBox").value;
-
+        cursor = '';
+        isMore = false;
 		
-		var getMessageListReq = new XMLHttpRequest();
-		var getMessageCall = "/api/2.0/search?q=" + encodeURIComponent("SELECT id FROM messages WHERE labels.text = '" + oldLabel + "' and board.id = '" + boardID + "' and (body MATCHES '" + keyword + "' OR subject MATCHES '" + keyword + "') LIMIT 1000");
+        getMessages();
 
-			console.log(getMessageCall);
+        while (isMore) {
+            getMessages();
+        }
 
-		getMessageListReq.open("GET", getMessageCall);
+        console.log('Done')
+	}
+
+
+    /***getMessages function***/
+    function getMessages() {
+        var getMessageListReq = new XMLHttpRequest();
+        var getMessageCall
+        if (cursor) {
+            getMessageCall = "/api/2.0/search?q=" + encodeURIComponent("SELECT id FROM messages WHERE labels.text = '" + oldLabel + "' and board.id = '" + boardID + "' and (body MATCHES '" + keyword + "' OR subject MATCHES '" + keyword + "') LIMIT 10 CURSOR '" + cursor + "'");
+        } else {
+		    getMessageCall = "/api/2.0/search?q=" + encodeURIComponent("SELECT id FROM messages WHERE labels.text = '" + oldLabel + "' and board.id = '" + boardID + "' and (body MATCHES '" + keyword + "' OR subject MATCHES '" + keyword + "') LIMIT 10");
+        }
+		console.log(getMessageCall);
+
+		getMessageListReq.open("GET", getMessageCall, false);
 		
 		getMessageListReq.onload = function(){
 			var messageList = JSON.parse(getMessageListReq.response);
-					console.log(messageList.status);
-			var size = messageList.data.size;
-			
-			if (size > 0){
-				
-				for (var i = 0; i < size; i++){				
-					if (newLabel){
-						add(messageList.data.items[i].id);
-					}
-					del(messageList.data.items[i].id);
-				}		
+			console.log(messageList.status);
+			if (messageList.data.next_cursor) {
+                cursor = messageList.data.next_cursor;
+                isMore = true;
+            } else {
+                isMore = false;
+            }
 
-				replace();
-			}
-			else{
-				console.log("Done");
-			}
+            var size = messageList.data.size;
 			
+            for (var i = 0; i < size; i++){				
+                if (newLabel){
+                    add(messageList.data.items[i].id);
+                }
+                del(messageList.data.items[i].id);
+            }				
 		}
-		
 		getMessageListReq.send();
-	}
+    }/***end getMessages***/
 
+
+    /***add function***/
 	function add(id){
-	var addLabelReq = new XMLHttpRequest();
-	var call = "/api/2.0/messages/" + id + "/labels";
-	var body = '{"data":{"type":"label","text":"' + newLabel + '"}}';
-	addLabelReq.open("POST", call, false);
+        var addLabelReq = new XMLHttpRequest();
+        var call = "/api/2.0/messages/" + id + "/labels";
+        var body = '{"data":{"type":"label","text":"' + newLabel + '"}}';
+        addLabelReq.open("POST", call, false);
 
-	addLabelReq.setRequestHeader('Content-type', 'application/json');
+        addLabelReq.setRequestHeader('Content-type', 'application/json');
 
 
-	addLabelReq.onload = function(){
-		resp = addLabelReq.response;
-		console.log(resp);
-	}
+        addLabelReq.onload = function(){
+            resp = addLabelReq.response;
+            console.log(resp);
+        }
 
-	addLabelReq.send(body);
-	}
+        addLabelReq.send(body);
+	}/***end add***/
 
+
+    /***del function***/
 	function del(id){
-	var delLabelReq = new XMLHttpRequest();
-	var call = "/api/2.0/messages/" + id + "/labels/" + encodedOldLabel;
+        var delLabelReq = new XMLHttpRequest();
+        var call = "/api/2.0/messages/" + id + "/labels/" + encodedOldLabel;
 
-	delLabelReq.open("DELETE", call, false);
+        delLabelReq.open("DELETE", call, false);
 
-	delLabelReq.onload = function(){
-		resp = delLabelReq.response;
-		console.log(resp);
-	}
-	delLabelReq.send();
-	}
+        delLabelReq.onload = function(){
+            resp = delLabelReq.response;
+            console.log(resp);
+        }
+        delLabelReq.send();
+	}/***end del***/
 
 
 	</script>

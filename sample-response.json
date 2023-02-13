@@ -1,0 +1,43 @@
+{
+    "status" : "success",
+    "message" : "",
+    "http_code" : 200,
+    "data" : {
+      "type" : "messages",
+      "list_item_type" : "message",
+      "size" : 5,
+      "items" : [ {
+        "type" : "message",
+        "id" : "1902",
+        "labels" : {
+          "count" : 2
+        }
+      }, {
+        "type" : "message",
+        "id" : "1890",
+        "labels" : {
+          "count" : 1
+        }
+      }, {
+        "type" : "message",
+        "id" : "1792",
+        "labels" : {
+          "count" : 0
+        }
+      }, {
+        "type" : "message",
+        "id" : "1791",
+        "labels" : {
+          "count" : 0
+        }
+      }, {
+        "type" : "message",
+        "id" : "1783",
+        "labels" : {
+          "count" : 0
+        }
+      } ],
+      "next_cursor" : "MjIuMTJ8Mi4wfGl8NXw0MTowLDE1OjB8aW50LDE5MDIsMTc4Mw"
+    },
+    "metadata" : { }
+  }
