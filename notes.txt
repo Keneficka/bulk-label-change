@@ -1,3 +1,3 @@
 SELECT id, labels.count(*) FROM messages WHERE board.id = 'TSEtestingfeedback' LIMIT 5
 
-SELECT id, labels.count(*) FROM messages WHERE labels.text = 'oldLabel' and board.id = 'boardID' and (body MATCHES 'keyword' OR subject MATCHES 'keyword') LIMIT 1000 CURSOR ''
+SELECT id, labels.count(*) FROM messages WHERE depth=0 AND labels.text = 'oldLabel' and board.id = 'boardID' and (body MATCHES 'keyword' OR subject MATCHES 'keyword') LIMIT 1000 CURSOR ''
